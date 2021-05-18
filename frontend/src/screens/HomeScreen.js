@@ -1,11 +1,10 @@
 import React, {useState, useEffect} from 'react';
 import { Col, Row } from 'react-bootstrap';
 import axios from 'axios';
-// import products from '../products';
 import Product from '../components/Product'
 
 const HomeScreen = () => {
-    const [products, setProducts] = useState([]) 
+    const [products, setProducts] = useState([])
 
     useEffect (() => {
         const fetchProducts = async () => {
@@ -13,8 +12,10 @@ const HomeScreen = () => {
 
             setProducts(data);
         }
+
         fetchProducts()
     }, [])
+    
     return (
         <>
             <h1>Latest Products</h1>
