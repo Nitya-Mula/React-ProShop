@@ -13,7 +13,7 @@ dotenv.config()
 connectDB()
 
 const importData = async () => {
-    try{
+    try {
         await Order.deleteMany()
         await Product.deleteMany()
         await User.deleteMany()
@@ -23,38 +23,38 @@ const importData = async () => {
         const adminUser = createdUsers[0]._id
 
         const sampleProducts = products.map(product => {
-            return {...product, user:adminUser}
+            return {
+                ...product,
+                user: adminUser
+            }
         })
 
         await Product.insertMany(sampleProducts)
 
         console.log('Data Imported'.green.inverse)
         process.exit()
-    }
-    catch(error){
+    } catch (error) {
         console.log(`${error}`.red.inverse)
         process.exit(1)
     }
 }
 
 const destroyData = async () => {
-    try{
+    try {
         await Order.deleteMany()
         await Product.deleteMany()
         await User.deleteMany()
 
         console.log('Data destroyed'.red.inverse)
         process.exit()
-    }
-    catch(error){
+    } catch (error) {
         console.log(`${error}`.red.inverse)
         process.exit(1)
     }
 }
 
-if(process.argv[2] === '-d'){
+if (process.argv[2] === '-d') {
     destroyData()
-}
-else{
+} else {
     importData()
 }
