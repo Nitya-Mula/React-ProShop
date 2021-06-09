@@ -64,6 +64,9 @@ const LoginScreen = ({ location, history }) => {
             Register
           </Link>
         </Col>
+        <Col style={{ textAlign: 'right' }}>
+          <Link to={'/forgotpassword'}>Forgot Password?</Link>
+        </Col>
       </Row>
     </FormContainer>
   )
