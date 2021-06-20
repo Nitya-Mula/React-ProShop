@@ -1,5 +1,7 @@
 import asyncHandler from 'express-async-handler'
 import User from '../models/userModel.js'
+import crypto from 'crypto'
+import nodemailer from 'nodemailer'
 import { generateToken } from '../utils/generateToken.js'
 
 // @desc Auth user & get token
@@ -165,6 +167,85 @@ const updateUser = asyncHandler(async (req, res) => {
   }
 })
 
+// @desc Check for an existing user
+// @route GET /api/users/emailcheck
+// @access Public
+const checkForExistingUser = asyncHandler(async (req, res) => {
+  const { email } = req.headers
+  const user = await User.findOne({ email: email })
+  if (user) {
+    res.status(200)
+    res.json({ message: 'User exists' })
+  } else {
+    res.status(404)
+    throw new Error('No such user exists')
+  }
+})
+
+// @desc Send email with password reset link
+// @route POST /api/users/forgotpassword
+// @access Public
+const sendPasswordResetEmail = asyncHandler(async (req, res) => {
+  const { email } = req.body
+  console.log(email)
+  const user = await User.findOne({ email: email })
+  if (user) {
+    const token = crypto.randomBytes(20).toString('hex')
+    user.resetPasswordToken = token
+    user.resetPasswordExpires = Date.now() + 3600000
+    const updatedUser = await user.save()
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+        user: `${process.env.EMAIL_ADDRESS}`,
+        pass: `${process.env.EMAIL_PASSWORD}`,
+      },
+    })
+
+    const mailOptions = {
+      from: `${process.env.EMAIL_ADDRESS}`,
+      to: `${updatedUser.email}`,
+      subject: '[PRO-E-SHOP] Link to reset password',
+      text:
+        'You are receiving this because you (or someone else) have requested the reset of the password for your account.\n\n' +
+        'Please click on the following link, or paste this into your browser to complete the process within one of receving it:\n\n' +
+        `http://localhost:3000/reset/${token}\n\n` +
+        'If you did not request this, please ignore this email and your password will remain unchanged.\n',
+    }
+    transporter.sendMail(mailOptions, (err, response) => {
+      if (err) {
+        response.status(400)
+        throw new Error('Unable to send reset email')
+      } else {
+        response.status(200).send('Success')
+      }
+    })
+    res.status(200)
+    res.json({ message: 'Recovery email sent' })
+  } else {
+    res.status(404)
+    throw new Error('No such user exists')
+  }
+})
+
+// @desc Update user's password from forgot password option
+// @route PUT /api/users/updatepassword/:token
+// @access Public
+const updateUserPassword = asyncHandler(async (req, res) => {
+  const { password: newPassword } = req.body
+  const token = req.params.token
+  const user = await User.findOne({ resetPasswordToken: token })
+  if (user) {
+    user.password = newPassword
+    const updatedUser = await user.save()
+    res.status(200)
+    res.json(updatedUser)
+  } else {
+    res.status(400)
+    throw new Error('Unable to update password')
+  }
+})
+
 export {
   authUser,
   getUserProfile,
@@ -174,4 +255,7 @@ export {
   deleteUser,
   getUserById,
   updateUser,
+  checkForExistingUser,
+  sendPasswordResetEmail,
+  updateUserPassword,
 }
