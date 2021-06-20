@@ -33,6 +33,7 @@ const HomeScreen = ({ match }) => {
           <Link to='/'>Go Back</Link>
         </Button>
       )}
+      <p className='my-3'></p>
       <h1>Latest Products</h1>
       {loading ? (
         <Loader />

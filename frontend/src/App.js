@@ -19,6 +19,7 @@ import ProductListScreen from './screens/ProductListScreen'
 import ProductEditScreen from './screens/ProductEditScreen'
 import OrderListScreen from './screens/OrderListScreen'
 import ForgotPasswordScreen from './screens/ForgotPasswordScreen'
+import ResetPasswordScreen from './screens/ResetPasswordScreen'
 
 const App = () => {
   return (
@@ -59,6 +60,7 @@ const App = () => {
           />
           <Route path='/admin/orderlist' component={OrderListScreen} />
           <Route path='/admin/product/:id/edit' component={ProductEditScreen} />
+          <Route path='/reset/:token' component={ResetPasswordScreen} />
         </Container>
       </main>
 
